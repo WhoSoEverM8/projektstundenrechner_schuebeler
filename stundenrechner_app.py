@@ -72,7 +72,6 @@ def calculate_project_hours(
 
     # --- Schritt 6: Ergebnisse bündeln ---
     aufteilung = { "Projektarbeit": round(final_plannable_hours) }
-    # ... (weitere Einträge für die Aufteilung)
     aufteilung["Urlaub"] = round(vacation_days * daily_hours)
     aufteilung["Feiertage"] = round(holidays_on_workdays * daily_hours)
     if sickness_hours > 0: aufteilung["Krankheit"] = round(sickness_hours)
@@ -112,7 +111,8 @@ if 'additional_deductions' not in st.session_state: st.session_state.additional_
 if 'deduction_id_counter' not in st.session_state: st.session_state.deduction_id_counter = 0
 
 # --- SEITENLEISTE ---
-st.sidebar.image("customcolor_logo_transparent_background.png", use_column_width=True)
+# KORREKTUR: "use_column_width" durch "use_container_width" ersetzt
+st.sidebar.image("customcolor_logo_transparent_background.png", use_container_width=True)
 st.sidebar.header("Allgemeine Parameter")
 
 bundeslaender = {"BW": "Baden-Württemberg", "BY": "Bayern", "BE": "Berlin", "BB": "Brandenburg", "HB": "Bremen", "HH": "Hamburg", "HE": "Hessen", "MV": "Mecklenburg-Vorpommern", "NI": "Niedersachsen", "NW": "Nordrhein-Westfalen", "RP": "Rheinland-Pfalz", "SL": "Saarland", "SN": "Sachsen", "ST": "Sachsen-Anhalt", "SH": "Schleswig-Holstein", "TH": "Thüringen"}
@@ -186,19 +186,18 @@ if st.session_state.results:
             if activity not in color_map: color_map[activity] = '#343a40'
         fig = px.bar(aufteilung_df, x='Aktivität', y='Stunden', title=f"Gesamte Brutto-Jahresstunden: {sum(aufteilung.values())}", color='Aktivität', color_discrete_map=color_map)
         fig.update_traces(texttemplate='%{y:.0f}', textposition='outside')
-        fig.update_layout(showlegend=False, xaxis_title=None, yaxis_title="Stunden pro Jahr", margin=dict(t=50)) # BUGFIX: Rand oben hinzugefügt
+        fig.update_layout(showlegend=False, xaxis_title=None, yaxis_title="Stunden pro Jahr", margin=dict(t=50))
         st.plotly_chart(fig, use_container_width=True)
 
     with col_data:
         st.subheader("Daten im Detail")
         display_df = aufteilung_df[aufteilung_df['Stunden'] > 0]
         st.dataframe(display_df, use_container_width=True, hide_index=True)
-        csv = display_df.to_csv(index=False).encode('utf-8-sig') # BUGFIX: Kodierung für korrekte Umlaute
+        csv = display_df.to_csv(index=False).encode('utf-8-sig')
         st.download_button("Daten als CSV exportieren", csv, f'kapazitaetsplanung_{display_year}_{state_name}.csv', 'text/csv', use_container_width=True)
     
     st.markdown("---")
 
-    # NEU: Transparente Darstellung des Rechenwegs
     with st.expander("Wie wird das berechnet? (Rechenweg anzeigen)"):
         st.markdown(f"""
         Die Berechnung Ihrer planbaren Projektstunden erfolgt nachvollziehbar in mehreren Schritten. 
